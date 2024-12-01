@@ -17,12 +17,12 @@ func TestPrefixIndex(t *testing.T) {
 	defer Rebuild()
 	stopWords := []string{}
 
-	index, err := NewPatternIndex("", stopWords, -1)
+	index, err := NewPatternIndex("", stopWords, 3)
 	if err != nil {
 		panic(err)
 	}
-	index.InsertPatternDocuments("biba bomba aboba", 0)
-	index.InsertPatternDocuments("bimba bomba aboba", 1)
+	index.InsertPrefixDocuments("biba bomba aboba", 0)
+	index.InsertPrefixDocuments("bimba bomba aboba", 1)
 	res, err := index.SearchByPrefix("bimb", 2)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, res, []string{"bimba bomba aboba"})

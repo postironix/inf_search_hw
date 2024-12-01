@@ -50,9 +50,9 @@ func (pi *PatternIndex) InsertPrefixDocuments(text string, indexDoc int) {
 	pi.tree.Put([]byte(strconv.Itoa(indexDoc)), []byte(text))
 }
 
-func (pi *PatternIndex) InsertPatternDocuments(text string, index_doc int) {
-	lower_text := strings.ToLower(text)
-	words := strings.Fields(lower_text)
+func (pi *PatternIndex) InsertPatternDocuments(text string, indexDoc int) {
+	lower := strings.ToLower(text)
+	words := strings.Fields(lower)
 	var allNgrams []string
 	for _, word := range words {
 		ngrams := make([]string, 0)
@@ -66,15 +66,15 @@ func (pi *PatternIndex) InsertPatternDocuments(text string, index_doc int) {
 
 	indices := make([]int, len(allNgrams))
 	for i := 0; i < len(allNgrams); i++ {
-		indices[i] = index_doc
+		indices[i] = indexDoc
 	}
 	pi.index.AddBatchDocument(allNgrams, indices)
-	pi.tree.Put([]byte(strconv.Itoa(index_doc)), []byte(text))
+	pi.tree.Put([]byte(strconv.Itoa(indexDoc)), []byte(text))
 }
 
 func (pi *PatternIndex) SearchByPrefix(prefix string, limit int) ([]string, error) {
-	lower_prefix := strings.ToLower(prefix)
-	indices, err := pi.index.GetListDocuments(lower_prefix)
+	lower := strings.ToLower(prefix)
+	indices, err := pi.index.GetListDocuments(lower)
 	if err != nil {
 		return []string{}, err
 	}
@@ -93,23 +93,23 @@ func (pi *PatternIndex) SearchByPrefix(prefix string, limit int) ([]string, erro
 }
 
 func (pi *PatternIndex) SearchByPattern(pattern string, limit int) ([]string, error) {
-	lower_pattern := strings.ToLower(pattern)
+	lower := strings.ToLower(pattern)
 
-	var important_words []string
-	parts := strings.Split(lower_pattern, "*")
+	var words []string
+	parts := strings.Split(lower, "*")
 
 	for _, part := range parts {
 		if len(part) <= limit {
-			important_words = append(important_words, part)
+			words = append(words, part)
 		} else {
 			for i := 0; i <= len(part)-limit; i++ {
-				important_words = append(important_words, part[i:i+limit])
+				words = append(words, part[i:i+limit])
 			}
 		}
 	}
 
 	bitmap := roaring.NewBitmap()
-	for _, word := range important_words {
+	for _, word := range words {
 		cur_bitmap, err := pi.index.GetMergedBitmapDocuments(word, limit)
 		if err != nil {
 			return []string{}, err
