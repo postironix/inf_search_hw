@@ -63,15 +63,15 @@ func TestMergeIndex(t *testing.T) {
 
 	index, _ := NewIndex("stem", stopWords)
 	index.AddBatchDocument([]string{
-		"pipi poopoo kaka land",
-		"kaka land",
+		"aboba biba boba",
+		"biba boba",
 	}, []int{0, 1})
 
-	result, err := index.GetMergedListsDocuments("pipi poopoo", 2)
+	result, err := index.GetMergedListsDocuments("aboba", 2)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, result, []int{0})
 
-	result, err = index.GetMergedListsDocuments("kaka land", 2)
+	result, err = index.GetMergedListsDocuments("biba boba", 2)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, result, []int{0, 1})
 }
